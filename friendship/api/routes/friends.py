@@ -5,11 +5,8 @@ from flask import Flask, jsonify, request, Blueprint
 from ...tracker import FriendshipTracker
 from ..rate_limit import rate_limit
 
-def register_routes(blueprint, tracker: FriendshipTracker):
+def register_routes(blueprint, tracker: FriendshipTracker, auth_decorator):
     """Register friend-related routes with the Flask blueprint."""
-    
-    # Get the auth decorator from app config
-    auth_decorator = blueprint.app.config.get('AUTH_DECORATOR', lambda f: f)
     
     # GET all friends
     @blueprint.route('/friends', methods=['GET'])

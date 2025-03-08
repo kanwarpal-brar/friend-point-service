@@ -10,6 +10,7 @@ def register_routes(app: Flask, tracker: FriendshipTracker):
     """Register all API routes with the Flask app."""
     # Register the API key as required for all routes
     app.config['AUTH_DECORATOR'] = auth.require_api_key
+    auth_decorator = auth.require_api_key
     
     # Create a Blueprint with the /api prefix
     api_bp = Blueprint('api', __name__, url_prefix='/api')
@@ -32,11 +33,11 @@ def register_routes(app: Flask, tracker: FriendshipTracker):
             'message': 'Friendship service is running'
         })
     
-    # Register friend-related routes
-    friends.register_routes(api_bp, tracker)
+    # Register friend-related routes (pass the auth_decorator directly)
+    friends.register_routes(api_bp, tracker, auth_decorator)
     
-    # Register interaction-related routes
-    interactions.register_routes(api_bp, tracker)
+    # Register interaction-related routes (pass the auth_decorator directly)
+    interactions.register_routes(api_bp, tracker, auth_decorator)
     
     # Register the blueprint with the app
     app.register_blueprint(api_bp)
