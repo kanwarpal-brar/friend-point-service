@@ -55,9 +55,11 @@ function make_request() {
   if [ "$method" == "GET" ]; then
     response=$(curl -s -w "\n%{http_code}" -X GET "${BASE_URL}${API_PREFIX}${endpoint}" \
       -H "X-API-Key: ${FRIENDSHIP_API_KEY}")
+  elif [ "$method" == "DELETE" ]; then
+    response=$(curl -s -w "\n%{http_code}" -X DELETE "${BASE_URL}${API_PREFIX}${endpoint}" \
+      -H "X-API-Key: ${FRIENDSHIP_API_KEY}")
   else
-    # Ensure data is properly quoted and escape sequences are correct
-    # Also add debugging to see what's being sent
+    # For POST requests
     echo "Sending request to: ${BASE_URL}${API_PREFIX}${endpoint}"
     echo "Data payload: $data"
     
@@ -202,11 +204,27 @@ function record_negative_interaction() {
 
 function delete_friend() {
   read -p "Enter friend's name: " name
-  read -p "Are you sure you want to delete $name? This cannot be undone. (y/N): " confirm
+  
+  # Get the exact name from the API first
+  temp_response=$(make_request "GET" "/friends")
+  # Extract the name that matches (ignoring quotes) using jq
+  exact_name=$(echo "$temp_response" | jq -r --arg search "$name" '.friends[] | select(.name | gsub("\""; "") | ascii_downcase == ($search | ascii_downcase)) | .name')
+  
+  if [ -z "$exact_name" ]; then
+    echo "Friend not found. Please check the name and try again."
+    echo
+    read -p "Press Enter to return to main menu..."
+    show_menu
+    return
+  fi
+  
+  read -p "Are you sure you want to delete $exact_name? This cannot be undone. (y/N): " confirm
   
   if [[ "$confirm" =~ ^[Yy]$ ]]; then
-    print_header "DELETING FRIEND" "Removing $name from your friends list"
-    make_request "DELETE" "/friends/$name"
+    print_header "DELETING FRIEND" "Removing $exact_name from your friends list"
+    # URL encode the name for the request
+    encoded_name=$(printf %s "$exact_name" | jq -sRr @uri)
+    make_request "DELETE" "/friends/$encoded_name"
   else
     echo "Friend deletion canceled."
   fi
