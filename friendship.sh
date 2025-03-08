@@ -3,7 +3,7 @@
 
 # Check if API key is set in environment variable
 if [ -z "$FRIENDSHIP_API_KEY" ]; then
-  echo "⚠️  Warning: FRIENDSHIP_API_KEY environment variable not set."
+  echo "Warning: FRIENDSHIP_API_KEY environment variable not set."
   echo "   Using default value. Set it with: export FRIENDSHIP_API_KEY=your_key"
   export FRIENDSHIP_API_KEY="change_me_in_production"
 fi
@@ -20,7 +20,7 @@ function print_header() {
 
 function check_jq() {
   if ! command -v jq &> /dev/null; then
-    echo "⚠️  jq is not installed. JSON output will not be formatted."
+    echo "jq is not installed. JSON output will not be formatted."
     echo "   Install jq for prettier output:"
     echo "   - macOS: brew install jq"
     echo "   - Ubuntu/Debian: sudo apt-get install jq"
