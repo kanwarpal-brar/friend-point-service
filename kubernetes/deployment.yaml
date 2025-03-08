@@ -1,7 +1,25 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: friendship
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: friendship-data-pvc
+  namespace: friendship
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: friendship-service
+  namespace: friendship
   labels:
     app: friendship-service
 spec:
@@ -47,3 +65,19 @@ spec:
       - name: friendship-data
         persistentVolumeClaim:
           claimName: friendship-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: friendship-service
+  namespace: friendship
+  labels:
+    app: friendship-service
+spec:
+  selector:
+    app: friendship-service
+  ports:
+  - port: 80
+    targetPort: 5000
+    protocol: TCP
+  type: ClusterIP
