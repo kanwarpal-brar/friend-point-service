@@ -45,6 +45,11 @@ spec:
           value: "5000"
         - name: FRIENDSHIP_LOG_LEVEL
           value: INFO
+        - name: FRIENDSHIP_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: friendship-api-secret
+              key: api-key
         volumeMounts:
         - name: friendship-data
           mountPath: /data

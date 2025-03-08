@@ -10,6 +10,7 @@ DEFAULT_CONFIG = {
     'API_PORT': 5000,
     'DEBUG': False,
     'LOG_LEVEL': 'INFO',
+    'API_KEY': 'change_me_in_production',
 }
 
 def get_config():
@@ -31,6 +32,9 @@ def get_config():
     
     if 'FRIENDSHIP_LOG_LEVEL' in os.environ:
         config['LOG_LEVEL'] = os.environ['FRIENDSHIP_LOG_LEVEL']
+    
+    if 'FRIENDSHIP_API_KEY' in os.environ:
+        config['API_KEY'] = os.environ['FRIENDSHIP_API_KEY']
     
     # Configure logging
     log_level = getattr(logging, config['LOG_LEVEL'].upper(), logging.INFO)

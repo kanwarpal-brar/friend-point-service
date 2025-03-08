@@ -7,8 +7,12 @@ from ...tracker import FriendshipTracker
 def register_routes(app: Flask, tracker: FriendshipTracker):
     """Register interaction-related routes with the Flask app."""
     
+    # Get the auth decorator from app config
+    auth_decorator = app.config.get('AUTH_DECORATOR', lambda f: f)
+    
     # POST to record interaction
     @app.route('/friends/interaction', methods=['POST'])
+    @auth_decorator
     def record_interaction():
         """Record a new interaction with a friend."""
         data = request.json

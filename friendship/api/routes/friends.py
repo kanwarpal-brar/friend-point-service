@@ -7,8 +7,12 @@ from ...tracker import FriendshipTracker
 def register_routes(app: Flask, tracker: FriendshipTracker):
     """Register friend-related routes with the Flask app."""
     
+    # Get the auth decorator from app config
+    auth_decorator = app.config.get('AUTH_DECORATOR', lambda f: f)
+    
     # GET all friends
     @app.route('/friends', methods=['GET'])
+    @auth_decorator
     def get_friends():
         """Get all friends and their statuses."""
         all_friends_text = tracker.get_all_friends()
@@ -23,6 +27,7 @@ def register_routes(app: Flask, tracker: FriendshipTracker):
     
     # GET specific friend
     @app.route('/friends/<name>', methods=['GET'])
+    @auth_decorator
     def get_friend(name):
         """Get a specific friend's status."""
         friend = tracker.get_friend(name)
