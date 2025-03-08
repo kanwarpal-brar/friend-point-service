@@ -1,6 +1,6 @@
 """Friend-related API routes."""
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request  # Added request import
 
 from ...tracker import FriendshipTracker
 from ..rate_limit import rate_limit
@@ -27,12 +27,17 @@ def register_routes(app: Flask, tracker: FriendshipTracker):
             'friends': friend_data
         })
     
-    # GET specific friend
-    @app.route('/friends/<name>', methods=['GET'])
+    # GET or DELETE specific friend
+    @app.route('/friends/<name>', methods=['GET', 'DELETE'])  # Added DELETE method explicitly
     @auth_decorator
     @rate_limit
     def get_friend(name):
-        """Get a specific friend's status."""
+        """Get a specific friend's status or delete a friend."""
+        # Handle DELETE method
+        if request.method == 'DELETE':
+            return delete_friend(name)
+        
+        # Handle GET method (existing code)
         friend = tracker.get_friend(name)
         if not friend:
             return jsonify({
@@ -56,10 +61,6 @@ def register_routes(app: Flask, tracker: FriendshipTracker):
             'visualization': visualization
         })
     
-    # DELETE friend
-    @app.route('/friends/<name>', methods=['DELETE'])
-    @auth_decorator
-    @rate_limit
     def delete_friend(name):
         """Delete a friend by name."""
         # Check if friend exists
