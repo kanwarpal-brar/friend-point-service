@@ -59,14 +59,18 @@ spec:
           httpGet:
             path: /friends
             port: 5000
-          initialDelaySeconds: 5
-          periodSeconds: 10
+          initialDelaySeconds: 10
+          periodSeconds: 15
+          timeoutSeconds: 5
+          failureThreshold: 3
         livenessProbe:
           httpGet:
             path: /friends
             port: 5000
-          initialDelaySeconds: 15
-          periodSeconds: 20
+          initialDelaySeconds: 20
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
       volumes:
       - name: friendship-data
         persistentVolumeClaim:
