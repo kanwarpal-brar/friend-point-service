@@ -49,15 +49,45 @@ function make_request() {
   local method=$1
   local endpoint=$2
   local data=$3
+  local response
   
   if [ "$method" == "GET" ]; then
-    curl -s -X GET "${BASE_URL}${endpoint}" \
-      -H "X-API-Key: ${FRIENDSHIP_API_KEY}" | $JQ_CMD
+    response=$(curl -s -w "\n%{http_code}" -X GET "${BASE_URL}${endpoint}" \
+      -H "X-API-Key: ${FRIENDSHIP_API_KEY}")
   else
-    curl -s -X POST "${BASE_URL}${endpoint}" \
+    # Ensure data is properly quoted and escape sequences are correct
+    # Also add debugging to see what's being sent
+    echo "Sending request to: ${BASE_URL}${endpoint}"
+    echo "Data payload: $data"
+    
+    response=$(curl -s -w "\n%{http_code}" -X POST "${BASE_URL}${endpoint}" \
       -H "X-API-Key: ${FRIENDSHIP_API_KEY}" \
       -H "Content-Type: application/json" \
-      -d "$data" | $JQ_CMD
+      -d "$data")
+  fi
+  
+  # Extract status code from the last line
+  local status_code=$(echo "$response" | tail -n1)
+  # Extract the actual response body (everything except the last line)
+  local body=$(echo "$response" | sed '$d')
+  
+  if [[ $status_code -ge 200 && $status_code -lt 300 ]]; then
+    # Check if response is valid JSON before passing to jq
+    if echo "$body" | jq empty 2>/dev/null; then
+      echo "$body" | $JQ_CMD
+    else
+      echo "Warning: Received non-JSON response:"
+      echo "$body"
+    fi
+  else
+    echo "Error: Request failed with status code $status_code"
+    echo "$body"
+    echo "Request details:"
+    echo "  Method: $method"
+    echo "  Endpoint: ${BASE_URL}${endpoint}"
+    if [ "$method" != "GET" ]; then
+      echo "  Payload: $data"
+    fi
   fi
 }
 
@@ -125,7 +155,12 @@ function record_positive_interaction() {
   
   print_header "RECORDING POSITIVE INTERACTION" "Adding $points points for $name: $message"
   
-  data="{\"name\":\"$name\",\"points\":$points,\"message\":\"$message\"}"
+  # Make sure to properly escape the quotes in the JSON payload
+  data=$(printf '{"name":"%s","points":%s,"message":"%s"}' \
+    "$(echo "$name" | sed 's/"/\\"/g')" \
+    "$points" \
+    "$(echo "$message" | sed 's/"/\\"/g')")
+  
   make_request "POST" "/friends/interaction" "$data"
   echo
   read -p "Press Enter to return to main menu..."
@@ -150,7 +185,12 @@ function record_negative_interaction() {
   
   print_header "RECORDING NEGATIVE INTERACTION" "Subtracting $points points for $name: $message"
   
-  data="{\"name\":\"$name\",\"points\":$negative_points,\"message\":\"$message\"}"
+  # Make sure to properly escape the quotes in the JSON payload
+  data=$(printf '{"name":"%s","points":%s,"message":"%s"}' \
+    "$(echo "$name" | sed 's/"/\\"/g')" \
+    "$negative_points" \
+    "$(echo "$message" | sed 's/"/\\"/g')")
+  
   make_request "POST" "/friends/interaction" "$data"
   echo
   read -p "Press Enter to return to main menu..."
@@ -264,7 +304,11 @@ if [ $# -gt 0 ]; then
         echo "Usage: $0 add <name> <points> <message>"
         exit 1
       fi
-      data="{\"name\":\"$2\",\"points\":$3,\"message\":\"$4\"}"
+      # Use printf to properly format the JSON
+      data=$(printf '{"name":"%s","points":%s,"message":"%s"}' \
+        "$(echo "$2" | sed 's/"/\\"/g')" \
+        "$3" \
+        "$(echo "$4" | sed 's/"/\\"/g')")
       make_request "POST" "/friends/interaction" "$data"
       ;;
     subtract)
@@ -274,7 +318,11 @@ if [ $# -gt 0 ]; then
         exit 1
       fi
       negative_points=$(echo "-1 * $3" | bc -l)
-      data="{\"name\":\"$2\",\"points\":$negative_points,\"message\":\"$4\"}"
+      # Use printf to properly format the JSON
+      data=$(printf '{"name":"%s","points":%s,"message":"%s"}' \
+        "$(echo "$2" | sed 's/"/\\"/g')" \
+        "$negative_points" \
+        "$(echo "$4" | sed 's/"/\\"/g')")
       make_request "POST" "/friends/interaction" "$data"
       ;;
     help)
