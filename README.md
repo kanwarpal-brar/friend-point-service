@@ -1,107 +1,22 @@
-# Friend Point Service
+# Friend Point Service: The Pester-O-Matic
 
-A Python system to track and measure friendship levels with a fuzzy point system.
+This project started as a joke to mildly annoy a friend. It's a friendship tracking system to quantify your bonds.
 
 ## Overview
 
-This service provides a way to track your friendships through a point system where positive and negative interactions affect friendship levels. The system uses a "fuzzy" approach to friendship scoring, where each friend has:
+This service tracks friendships using a point system. It's based on my **Logarithmic Fuzzy Friend System**. Good stuff gives points, bad stuff takes them away. The better your friendship the harder it is to lose/gain points.
 
-- A lower bound (confirmed friendship level)
-- A fuzziness factor (potential for growth)
+### Algorithm
 
-## Features
+- **Lower Bound:** Confirmed level of friendship.
+- **Fuzziness Factor:** Potential for more friendship
+- **Logarithmic Scaling:** Harder to level up the better friends you are.
+- **Fuzzy Points:** Range of friendship points.
 
-- Add friends and track their friendship level
-- Record positive and negative interactions with friends
-- View friendship statuses and histories
-- Visualize friendships with ASCII graphs
-- Persistent storage using SQLite
-- REST API endpoints for integration
-- Docker and Kubernetes support
+## Key Technical Details
 
-## Usage
-
-### Python Library
-
-```python
-from friendship import FriendshipTracker
-
-# Create a tracker
-tracker = FriendshipTracker()
-
-# Add a friend
-tracker.add_friend("Alex")
-
-# Record interactions
-print(tracker.record_interaction("Alex", 0.3, "helped me move apartments"))
-
-# Check friendship status
-print(tracker.get_friend_status("Alex"))
-
-# Visualize the friendship
-print(tracker.visualize_friendship("Alex"))
-
-# Close the connection when done
-tracker.close()
-```
-
-### REST API
-
-Run the API server:
-
-```bash
-python main.py --api
-```
-
-#### Get all friends:
-```bash
-curl http://localhost:5000/friends
-```
-
-#### Get a specific friend:
-```bash
-curl http://localhost:5000/friends/Alex
-```
-
-#### Record an interaction:
-```bash
-curl -X POST http://localhost:5000/friends/interaction \
-  -H "Content-Type: application/json" \
-  -d '{"name": "Alex", "points": 0.5, "message": "helped me with a project"}'
-```
-
-## Docker
-
-Build the Docker image:
-
-```bash
-docker build -t friendship-service .
-```
-
-Run the container:
-
-```bash
-docker run -p 5000:5000 -v $(pwd)/data:/data friendship-service
-```
-
-## Kubernetes
-
-Deploy to Kubernetes:
-
-```bash
-kubectl apply -f kubernetes/pvc.yaml
-kubectl apply -f kubernetes/deployment.yaml
-kubectl apply -f kubernetes/service.yaml
-```
-
-## Structure
-
-- `friendship/` - Main package
-  - `database.py` - Database management with SQLite
-  - `models.py` - Data model for friends
-  - `tracker.py` - Main friendship tracking functionality
-  - `api.py` - REST API implementation
-  - `config.py` - Configuration management
-- `main.py` - Command line interface
-- `kubernetes/` - Kubernetes deployment files
-- `Dockerfile` - Docker configuration
+- **Framework:** Flask (REST API)
+- **Database:** SQLite
+- **Design Pattern:** Factory Pattern (for API creation)
+- **Containerization:** Docker
+- **Orchestration:** Kubernetes
