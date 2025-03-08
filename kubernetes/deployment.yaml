@@ -61,6 +61,12 @@ spec:
             port: 5000
           initialDelaySeconds: 5
           periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /friends
+            port: 5000
+          initialDelaySeconds: 15
+          periodSeconds: 20
       volumes:
       - name: friendship-data
         persistentVolumeClaim:
