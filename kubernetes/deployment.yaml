@@ -35,7 +35,7 @@ spec:
       containers:
       - name: friendship-service
         image: friendship-service:latest
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5000
         env:
