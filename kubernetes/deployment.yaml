@@ -34,7 +34,7 @@ spec:
     spec:
       containers:
       - name: friendship-service
-        image: friendship-service:latest
+        image: kbrar8/friendship-service:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5000
