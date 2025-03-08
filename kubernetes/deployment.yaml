@@ -62,7 +62,7 @@ spec:
             memory: "128Mi"
         readinessProbe:
           httpGet:
-            path: /friends
+            path: /health
             port: 5000
           initialDelaySeconds: 10
           periodSeconds: 15
@@ -70,7 +70,7 @@ spec:
           failureThreshold: 3
         livenessProbe:
           httpGet:
-            path: /friends
+            path: /health
             port: 5000
           initialDelaySeconds: 20
           periodSeconds: 30
