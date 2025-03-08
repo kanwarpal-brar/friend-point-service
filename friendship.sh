@@ -104,9 +104,10 @@ function show_menu() {
   echo "3. Record positive interaction"
   echo "4. Record negative interaction"
   echo "5. Configure settings"
+  echo "6. Delete a friend"
   echo "0. Exit"
   echo
-  read -p "Enter choice [0-5]: " choice
+  read -p "Enter choice [0-6]: " choice
   
   case $choice in
     1) list_all_friends ;;
@@ -114,6 +115,7 @@ function show_menu() {
     3) record_positive_interaction ;;
     4) record_negative_interaction ;;
     5) configure_settings ;;
+    6) delete_friend ;;
     0) exit 0 ;;
     *) 
       echo "Invalid choice. Press Enter to continue..."
@@ -197,6 +199,22 @@ function record_negative_interaction() {
   show_menu
 }
 
+function delete_friend() {
+  read -p "Enter friend's name: " name
+  read -p "Are you sure you want to delete $name? This cannot be undone. (y/N): " confirm
+  
+  if [[ "$confirm" =~ ^[Yy]$ ]]; then
+    print_header "DELETING FRIEND" "Removing $name from your friends list"
+    make_request "DELETE" "/friends/$name"
+  else
+    echo "Friend deletion canceled."
+  fi
+  
+  echo
+  read -p "Press Enter to return to main menu..."
+  show_menu
+}
+
 function configure_settings() {
   clear
   echo -e "\033[1;35m=== Configuration ===\033[0m"
@@ -265,6 +283,7 @@ function show_help() {
   echo "                      Add a positive interaction"
   echo "  subtract <name> <points> <message>"
   echo "                      Add a negative interaction"
+  echo "  delete <name>       Delete a friend"
   echo "  interactive         Launch interactive menu (default)"
   echo "  generate-key        Generate a secure API key"
   echo
@@ -277,6 +296,7 @@ function show_help() {
   echo "  $0 get \"Alex\""
   echo "  $0 add \"Alex\" 0.5 \"Helped with moving\""
   echo "  $0 subtract \"Alex\" 0.2 \"Forgot dinner plans\""
+  echo "  $0 delete \"Alex\""
   echo "  $0 generate-key"
   echo
 }
@@ -324,6 +344,19 @@ if [ $# -gt 0 ]; then
         "$negative_points" \
         "$(echo "$4" | sed 's/"/\\"/g')")
       make_request "POST" "/friends/interaction" "$data"
+      ;;
+    delete)
+      if [ -z "$2" ]; then
+        echo "Error: Missing friend name"
+        echo "Usage: $0 delete <name>"
+        exit 1
+      fi
+      read -p "Are you sure you want to delete \"$2\"? This cannot be undone. (y/N): " confirm
+      if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        make_request "DELETE" "/friends/$2"
+      else
+        echo "Friend deletion canceled."
+      fi
       ;;
     help)
       show_help

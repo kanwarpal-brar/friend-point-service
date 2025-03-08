@@ -35,6 +35,24 @@ class FriendshipTracker:
             return None
         return Friend(*result)
     
+    def delete_friend(self, name: str) -> bool:
+        """
+        Delete a friend from the tracker.
+        
+        Args:
+            name: Friend's name
+            
+        Returns:
+            Boolean indicating success or failure
+        """
+        friend = self.get_friend(name)
+        if not friend:
+            return False
+            
+        # Delete the friend from the database
+        success = self.db.delete_friend(friend.id)
+        return success
+    
     def _calculate_point_change(self, current_bound: float, point_value: float) -> float:
         """
         Calculate the actual change to lower bound based on current friendship level.

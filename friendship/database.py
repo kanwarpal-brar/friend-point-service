@@ -130,6 +130,21 @@ class FriendshipDatabase:
         )
         return cursor.fetchall()
     
+    def delete_friend(self, friend_id):
+        """Delete a friend and all their interactions from the database."""
+        conn, cursor = self._get_connection()
+        try:
+            # First delete all interactions for this friend
+            cursor.execute("DELETE FROM interactions WHERE friend_id = ?", (friend_id,))
+            # Then delete the friend
+            cursor.execute("DELETE FROM friends WHERE id = ?", (friend_id,))
+            conn.commit()
+            return cursor.rowcount > 0
+        except sqlite3.Error as e:
+            logger.error(f"Database error when deleting friend {friend_id}: {e}")
+            conn.rollback()
+            return False
+    
     def close(self):
         """Close the database connection."""
         if hasattr(self._local, 'conn') and self._local.conn is not None:

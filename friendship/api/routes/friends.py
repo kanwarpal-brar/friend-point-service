@@ -52,6 +52,32 @@ def register_routes(app: Flask, tracker: FriendshipTracker):
             'history_text': history,
             'visualization': visualization
         })
+    
+    # DELETE friend
+    @app.route('/friends/<name>', methods=['DELETE'])
+    @auth_decorator
+    def delete_friend(name):
+        """Delete a friend by name."""
+        # Check if friend exists
+        friend = tracker.get_friend(name)
+        if not friend:
+            return jsonify({
+                'status': 'error',
+                'message': f"Friend '{name}' not found"
+            }), 404
+        
+        # Delete the friend
+        success = tracker.delete_friend(name)
+        if success:
+            return jsonify({
+                'status': 'success',
+                'message': f"Friend '{name}' has been deleted"
+            })
+        else:
+            return jsonify({
+                'status': 'error',
+                'message': f"Failed to delete friend '{name}'"
+            }), 500
 
 def _get_all_friends_data(tracker: FriendshipTracker) -> list:
     """Get all friends in a JSON-friendly format."""
