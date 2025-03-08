@@ -3,6 +3,7 @@
 from flask import Flask, jsonify
 
 from ...tracker import FriendshipTracker
+from ..rate_limit import rate_limit
 
 def register_routes(app: Flask, tracker: FriendshipTracker):
     """Register friend-related routes with the Flask app."""
@@ -13,6 +14,7 @@ def register_routes(app: Flask, tracker: FriendshipTracker):
     # GET all friends
     @app.route('/friends', methods=['GET'])
     @auth_decorator
+    @rate_limit
     def get_friends():
         """Get all friends and their statuses."""
         all_friends_text = tracker.get_all_friends()
@@ -28,6 +30,7 @@ def register_routes(app: Flask, tracker: FriendshipTracker):
     # GET specific friend
     @app.route('/friends/<name>', methods=['GET'])
     @auth_decorator
+    @rate_limit
     def get_friend(name):
         """Get a specific friend's status."""
         friend = tracker.get_friend(name)
@@ -56,6 +59,7 @@ def register_routes(app: Flask, tracker: FriendshipTracker):
     # DELETE friend
     @app.route('/friends/<name>', methods=['DELETE'])
     @auth_decorator
+    @rate_limit
     def delete_friend(name):
         """Delete a friend by name."""
         # Check if friend exists

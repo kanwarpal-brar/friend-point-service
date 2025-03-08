@@ -3,6 +3,7 @@
 from flask import Flask, request, jsonify
 
 from ...tracker import FriendshipTracker
+from ..rate_limit import rate_limit
 
 def register_routes(app: Flask, tracker: FriendshipTracker):
     """Register interaction-related routes with the Flask app."""
@@ -13,6 +14,7 @@ def register_routes(app: Flask, tracker: FriendshipTracker):
     # POST to record interaction
     @app.route('/friends/interaction', methods=['POST'])
     @auth_decorator
+    @rate_limit
     def record_interaction():
         """Record a new interaction with a friend."""
         data = request.json
