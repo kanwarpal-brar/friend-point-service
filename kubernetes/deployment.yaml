@@ -1,9 +1,4 @@
 apiVersion: v1
-kind: Namespace
-metadata:
-  name: friendship
----
-apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: friendship-data-pvc
