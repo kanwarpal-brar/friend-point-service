@@ -127,18 +127,5 @@ spec:
       services:
         - name: friendship-service
           port: 80
-      middlewares:
-        - name: friendship-strip-prefix
   tls:
     certResolver: default
----
-apiVersion: traefik.containo.us/v1alpha1
-kind: Middleware
-metadata:
-  name: friendship-strip-prefix
-  namespace: friendship
-spec:
-  stripPrefix:
-    prefixes:
-      - /api
-    forceSlash: true

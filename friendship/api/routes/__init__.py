@@ -1,6 +1,6 @@
 """Route registration for the API."""
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, Blueprint
 
 from ...tracker import FriendshipTracker
 from .. import auth
@@ -11,8 +11,11 @@ def register_routes(app: Flask, tracker: FriendshipTracker):
     # Register the API key as required for all routes
     app.config['AUTH_DECORATOR'] = auth.require_api_key
     
+    # Create a Blueprint with the /api prefix
+    api_bp = Blueprint('api', __name__, url_prefix='/api')
+    
     # Register a simple health check endpoint that doesn't require authentication
-    @app.route('/health', methods=['GET'])
+    @api_bp.route('/health', methods=['GET'])
     def health_check():
         """Health check endpoint for Kubernetes probes."""
         return jsonify({
@@ -20,8 +23,20 @@ def register_routes(app: Flask, tracker: FriendshipTracker):
             'message': 'Friendship service is running'
         })
     
+    # Also register a root health check for Kubernetes probes
+    @app.route('/health', methods=['GET'])
+    def root_health_check():
+        """Root health check endpoint for Kubernetes probes."""
+        return jsonify({
+            'status': 'ok',
+            'message': 'Friendship service is running'
+        })
+    
     # Register friend-related routes
-    friends.register_routes(app, tracker)
+    friends.register_routes(api_bp, tracker)
     
     # Register interaction-related routes
-    interactions.register_routes(app, tracker)
+    interactions.register_routes(api_bp, tracker)
+    
+    # Register the blueprint with the app
+    app.register_blueprint(api_bp)

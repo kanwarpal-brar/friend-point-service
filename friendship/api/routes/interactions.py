@@ -1,18 +1,18 @@
 """Interaction-related API routes."""
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Blueprint
 
 from ...tracker import FriendshipTracker
 from ..rate_limit import rate_limit
 
-def register_routes(app: Flask, tracker: FriendshipTracker):
-    """Register interaction-related routes with the Flask app."""
+def register_routes(blueprint, tracker: FriendshipTracker):
+    """Register interaction-related routes with the Flask blueprint."""
     
     # Get the auth decorator from app config
-    auth_decorator = app.config.get('AUTH_DECORATOR', lambda f: f)
+    auth_decorator = blueprint.app.config.get('AUTH_DECORATOR', lambda f: f)
     
     # POST to record interaction
-    @app.route('/friends/interaction', methods=['POST'])
+    @blueprint.route('/friends/interaction', methods=['POST'])
     @auth_decorator
     @rate_limit
     def record_interaction():

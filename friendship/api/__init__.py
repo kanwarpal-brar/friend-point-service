@@ -13,6 +13,10 @@ class FriendshipAPI:
     def __init__(self, tracker: FriendshipTracker):
         """Initialize the API with a tracker instance."""
         self.app = Flask(__name__)
+        
+        # Set URL prefix for all routes
+        self.app.config['APPLICATION_ROOT'] = '/api'
+        
         self.tracker = tracker
         
         # Configure rate limiter from environment or defaults

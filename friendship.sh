@@ -10,6 +10,7 @@ fi
 
 # Set this to your domain or localhost:5000 for local testing
 BASE_URL=${FRIENDSHIP_API_URL:-"https://friendship.kanwarpal.com"}
+API_PREFIX="/api"
 
 # Helper functions
 function print_header() {
@@ -52,15 +53,15 @@ function make_request() {
   local response
   
   if [ "$method" == "GET" ]; then
-    response=$(curl -s -w "\n%{http_code}" -X GET "${BASE_URL}${endpoint}" \
+    response=$(curl -s -w "\n%{http_code}" -X GET "${BASE_URL}${API_PREFIX}${endpoint}" \
       -H "X-API-Key: ${FRIENDSHIP_API_KEY}")
   else
     # Ensure data is properly quoted and escape sequences are correct
     # Also add debugging to see what's being sent
-    echo "Sending request to: ${BASE_URL}${endpoint}"
+    echo "Sending request to: ${BASE_URL}${API_PREFIX}${endpoint}"
     echo "Data payload: $data"
     
-    response=$(curl -s -w "\n%{http_code}" -X POST "${BASE_URL}${endpoint}" \
+    response=$(curl -s -w "\n%{http_code}" -X POST "${BASE_URL}${API_PREFIX}${endpoint}" \
       -H "X-API-Key: ${FRIENDSHIP_API_KEY}" \
       -H "Content-Type: application/json" \
       -d "$data")
@@ -84,7 +85,7 @@ function make_request() {
     echo "$body"
     echo "Request details:"
     echo "  Method: $method"
-    echo "  Endpoint: ${BASE_URL}${endpoint}"
+    echo "  Endpoint: ${BASE_URL}${API_PREFIX}${endpoint}"
     if [ "$method" != "GET" ]; then
       echo "  Payload: $data"
     fi

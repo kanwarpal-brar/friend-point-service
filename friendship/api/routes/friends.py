@@ -1,18 +1,18 @@
 """Friend-related API routes."""
 
-from flask import Flask, jsonify, request  # Added request import
+from flask import Flask, jsonify, request, Blueprint
 
 from ...tracker import FriendshipTracker
 from ..rate_limit import rate_limit
 
-def register_routes(app: Flask, tracker: FriendshipTracker):
-    """Register friend-related routes with the Flask app."""
+def register_routes(blueprint, tracker: FriendshipTracker):
+    """Register friend-related routes with the Flask blueprint."""
     
     # Get the auth decorator from app config
-    auth_decorator = app.config.get('AUTH_DECORATOR', lambda f: f)
+    auth_decorator = blueprint.app.config.get('AUTH_DECORATOR', lambda f: f)
     
     # GET all friends
-    @app.route('/friends', methods=['GET'])
+    @blueprint.route('/friends', methods=['GET'])
     @auth_decorator
     @rate_limit
     def get_friends():
@@ -28,7 +28,7 @@ def register_routes(app: Flask, tracker: FriendshipTracker):
         })
     
     # GET or DELETE specific friend
-    @app.route('/friends/<name>', methods=['GET', 'DELETE'])  # Added DELETE method explicitly
+    @blueprint.route('/friends/<name>', methods=['GET', 'DELETE'])
     @auth_decorator
     @rate_limit
     def get_friend(name):
@@ -37,7 +37,7 @@ def register_routes(app: Flask, tracker: FriendshipTracker):
         if request.method == 'DELETE':
             return delete_friend(name)
         
-        # Handle GET method (existing code)
+        # Handle GET method
         friend = tracker.get_friend(name)
         if not friend:
             return jsonify({
