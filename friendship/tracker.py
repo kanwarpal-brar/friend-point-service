@@ -44,12 +44,17 @@ class FriendshipTracker:
         if point_value >= 0:
             # Positive interaction - harder to gain points at higher levels
             # Higher ranks experience diminishing returns
-            rank_factor = 1.0 / (1.0 + current_bound * 0.5)
+            
+            # Apply more aggressive scaling factor to slow down progression
+            rank_factor = 1.0 / (1.0 + current_bound * 0.7)  # Increased from 0.5 to 0.7
             
             # Additional exponential decay for higher ranks
-            rank_penalty = math.exp(-0.3 * current_bound)
+            rank_penalty = math.exp(-0.4 * current_bound)  # Increased from 0.3 to 0.4
             
-            return point_value * rank_factor * rank_penalty
+            # Add a general dampening factor to slow down all progression
+            general_dampening = 0.65  # Only 65% of points awarded
+            
+            return point_value * rank_factor * rank_penalty * general_dampening
         else:
             # Negative interaction - higher friendships are more resilient
             # Protection increases with friendship rank
