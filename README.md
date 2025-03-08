@@ -28,24 +28,22 @@ This service tracks friendships using a point system. It's based on my **Logarit
     *   **Build the image:**
 
         ```bash
-        docker build -t your-dockerhub-username/friendship-service:latest .
+        docker build -t friendship-service:latest .
+        ```
+
+        *This builds the image locally.  You can tag it with your Docker Hub username if you intend to push it to a registry.*
+
+    *   **(Optional) Tag and Push the image:**
+
+        ```bash
+        docker tag friendship-service:latest your-dockerhub-username/friendship-service:latest
+        docker login
+        docker push your-dockerhub-username/friendship-service:latest
         ```
 
         *Replace `your-dockerhub-username` with your Docker Hub username (or your container registry).*
 
-    *   **Login to Docker Hub (or your registry):**
-
-        ```bash
-        docker login
-        ```
-
-    *   **Push the image:**
-
-        ```bash
-        docker push your-dockerhub-username/friendship-service:latest
-        ```
-
-        *Make sure your Kubernetes deployment YAML (`kubernetes/deployment.yaml`) uses this image name.*
+        *If you skip this step, Kubernetes will attempt to pull the image locally, which is fine for a single-node cluster or local testing.*
 
 2.  **Deploy to Kubernetes:**
 
