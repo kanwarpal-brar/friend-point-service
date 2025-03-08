@@ -91,3 +91,34 @@ spec:
     targetPort: 5000
     protocol: TCP
   type: ClusterIP
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: friendship-route
+  namespace: friendship
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`friendship.kanwarpal.com`) # Replace with your actual domain
+      kind: Rule
+      services:
+        - name: friendship-service
+          port: 80
+      middlewares:
+        - name: friendship-strip-prefix
+  tls:
+    certResolver: default # Replace with your cert resolver if different
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: friendship-strip-prefix
+  namespace: friendship
+spec:
+  stripPrefix:
+    prefixes:
+      - /api
+    forceSlash: true
