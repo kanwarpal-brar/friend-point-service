@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class RateLimiter:
     """Simple in-memory rate limiter."""
     
-    def __init__(self, limit=30, window=60):
+    def __init__(self, limit=100, window=60):
         """
         Initialize the rate limiter.
         
@@ -46,6 +46,7 @@ class RateLimiter:
             if len(self.requests[key]) >= self.limit:
                 # Calculate when the oldest request will expire
                 reset_time = self.requests[key][0] + self.window - now
+                logger.warning(f"Rate limit exceeded for {key}: {len(self.requests[key])} requests in {self.window}s window")
                 return False, 0, reset_time
             
             # Record this request
@@ -53,6 +54,10 @@ class RateLimiter:
             
             remaining = self.limit - len(self.requests[key])
             reset_time = self.window
+            
+            # Log request rate for debugging
+            if len(self.requests[key]) % 10 == 0 or len(self.requests[key]) <= 5:
+                logger.debug(f"Client {key} has made {len(self.requests[key])} requests in current window, {remaining} remaining")
             
             return True, remaining, reset_time
 
@@ -62,11 +67,21 @@ limiter = RateLimiter()
 def rate_limit(f):
     """
     Decorator to apply rate limiting to a route.
+    
+    This can be disabled by setting FRIENDSHIP_DISABLE_RATE_LIMIT=true in environment.
     """
     @wraps(f)
     def decorated(*args, **kwargs):
         # Get client identifier (IP address)
         client_ip = request.remote_addr
+        
+        # Only apply rate limiting if not disabled
+        from ..config import get_config
+        config = get_config()
+        
+        if config.get('DISABLE_RATE_LIMIT', False):
+            # Skip rate limiting if disabled
+            return f(*args, **kwargs)
         
         # Check rate limit
         allowed, remaining, reset_time = limiter.is_allowed(client_ip)
@@ -78,7 +93,7 @@ def rate_limit(f):
             # Return 429 Too Many Requests
             response = jsonify({
                 'status': 'error',
-                'message': 'Rate limit exceeded. Please try again later.'
+                'message': f'Rate limit exceeded. Please try again in {reset_time:.1f} seconds.'
             })
             response.status_code = 429
         else:
@@ -94,7 +109,7 @@ def rate_limit(f):
     
     return decorated
 
-def configure_rate_limiter(limit=30, window=60):
+def configure_rate_limiter(limit=100, window=60):
     """
     Configure the global rate limiter.
     

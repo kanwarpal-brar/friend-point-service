@@ -11,8 +11,9 @@ DEFAULT_CONFIG = {
     'DEBUG': False,
     'LOG_LEVEL': 'INFO',
     'API_KEY': 'change_me_in_production',
-    'RATE_LIMIT': 30,     # 30 requests per minute by default
-    'RATE_WINDOW': 60,    # 60 seconds time window
+    'RATE_LIMIT': 100,     # Increased from 30 to 100 requests per windows per window
+    'RATE_WINDOW': 60,    # 60 seconds time windoww
+    'DISABLE_RATE_LIMIT': False,  # Option to disable rate limiting entirely
 }
 
 def get_config():
@@ -44,6 +45,10 @@ def get_config():
     
     if 'FRIENDSHIP_RATE_WINDOW' in os.environ:
         config['RATE_WINDOW'] = int(os.environ['FRIENDSHIP_RATE_WINDOW'])
+    
+    # Option to disable rate limiting entirely
+    if 'FRIENDSHIP_DISABLE_RATE_LIMIT' in os.environ:
+        config['DISABLE_RATE_LIMIT'] = os.environ['FRIENDSHIP_DISABLE_RATE_LIMIT'].lower() in ('true', '1', 'yes')
     
     # Configure logging
     log_level = getattr(logging, config['LOG_LEVEL'].upper(), logging.INFO)
