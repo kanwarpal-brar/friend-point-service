@@ -13,7 +13,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 2Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -55,10 +55,10 @@ spec:
           mountPath: /data
         resources:
           limits:
-            cpu: "0.5"
+            cpu: "1"
             memory: "256Mi"
           requests:
-            cpu: "0.1"
+            cpu: "0.2"
             memory: "128Mi"
         readinessProbe:
           httpGet:
@@ -80,6 +80,26 @@ spec:
       - name: friendship-data
         persistentVolumeClaim:
           claimName: friendship-data-pvc
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: friendship-service-hpa
+  namespace: friendship
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: friendship-service
+  minReplicas: 1
+  maxReplicas: 2
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
 ---
 apiVersion: v1
 kind: Service
@@ -107,7 +127,7 @@ spec:
     - web
     - websecure
   routes:
-    - match: Host(`friendship.kanwarpal.com`) # Replace with your actual domain
+    - match: Host(`friendship.kanwarpal.com`)
       kind: Rule
       services:
         - name: friendship-service
@@ -115,7 +135,7 @@ spec:
       middlewares:
         - name: friendship-strip-prefix
   tls:
-    certResolver: default # Replace with your cert resolver if different
+    certResolver: default
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
