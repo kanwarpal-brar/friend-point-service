@@ -1,8 +1,6 @@
 """REST API server for friendship tracking system."""
 
-import os
 from flask import Flask, request, jsonify
-from typing import Dict, Any
 
 from .tracker import FriendshipTracker
 
