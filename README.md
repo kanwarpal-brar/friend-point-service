@@ -54,7 +54,7 @@ This service tracks friendships using a point system. It's based on my **Logarit
     *   Apply the Kubernetes manifests:
 
         ```bash
-        kubectl apply -f kubernetes/all-in-one.yaml
+        kubectl apply -f kubernetes/deployment.yaml
         ```
 
         *This deploys all resources, including the namespace, in one go.*
