@@ -1,4 +1,4 @@
-# Friend Point Service: The Pester-O-Matic
+# Friend Point Service
 
 This project started as a joke to mildly annoy a friend. It's a friendship tracking system to quantify your bonds. It also gave me an excuse to deploy an HTTP service on my personal Kubernetes cluster, routing through Cloudflare Zero Trust.
 
